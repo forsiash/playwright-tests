@@ -1,17 +1,37 @@
 import { test, expect } from '@playwright/test';
 
+const elements = [
+  {
+    locator: (page) => page.getByRole('link', { name: 'Playwright logo Playwright' }),
+  },
+  {
+    locator: (page) => page.getByRole('link', { name: 'Docs' }),
+  },
+  {
+    locator: (page) => page.getByRole('link', { name: 'MCP', exact: true }),
+  },
+  {
+    locator: (page) => page.getByRole('link', { name: 'CLI', exact: true }),
+  },
+  {
+    locator: (page) => page.getByRole('link', { name: 'API' }),
+  },
+  {
+    locator: (page) => page.getByRole('button', { name: 'Node.js' }),
+  },
+];
+
 test.describe('tests main page', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('https://playwright.dev/');
   });
 
   test('check navbar elements visibility', async ({ page }) => {
-    await expect(page.getByRole('link', { name: 'Playwright logo Playwright' })).toBeVisible();
-    await expect(page.getByRole('link', { name: 'Docs' })).toBeVisible();
-    await expect(page.getByRole('link', { name: 'MCP', exact: true })).toBeVisible();
-    await expect(page.getByRole('link', { name: 'CLI', exact: true })).toBeVisible();
-    await expect(page.getByRole('link', { name: 'API' })).toBeVisible();
-    await expect(page.getByRole('button', { name: 'Node.js' })).toBeVisible();
+    elements.forEach(({ locator }) => {
+      test.step('check visibility playwright logo', async () => {
+        await expect.soft(locator(page)).toBeVisible();
+      });
+    });
   });
 
   test('check name into navbar', async ({ page }) => {
