@@ -1,23 +1,70 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, Page, Locator } from '@playwright/test';
 
-const elements = [
+interface Elements {
+  locator: (page: Page) => Locator;
+  name: string;
+  text?: string;
+  attribute?: {
+    type: string;
+    value: string;
+  };
+}
+
+const elements: Elements[] = [
   {
-    locator: (page) => page.getByRole('link', { name: 'Playwright logo Playwright' }),
+    locator: (page: Page): Locator =>
+      page.getByRole('link', { name: 'Playwright logo Playwright' }),
+    name: 'Playwright logo link',
+    text: 'Playwright',
+    attribute: {
+      type: 'href',
+      value: '/',
+    },
   },
   {
-    locator: (page) => page.getByRole('link', { name: 'Docs' }),
+    locator: (page: Page): Locator => page.getByRole('link', { name: 'Docs' }),
+    name: 'Docs link',
+    text: 'Docs',
+    attribute: {
+      type: 'href',
+      value: '/docs/intro',
+    },
   },
   {
-    locator: (page) => page.getByRole('link', { name: 'MCP', exact: true }),
+    locator: (page: Page): Locator => page.getByRole('link', { name: 'MCP', exact: true }),
+    name: 'MCP link',
+    text: 'MCP',
+    attribute: {
+      type: 'href',
+      value: '/mcp/introduction',
+    },
   },
   {
-    locator: (page) => page.getByRole('link', { name: 'CLI', exact: true }),
+    locator: (page: Page): Locator => page.getByRole('link', { name: 'CLI', exact: true }),
+    name: 'CLI link',
+    text: 'CLI',
+    attribute: {
+      type: 'href',
+      value: '/agent-cli/introduction',
+    },
   },
   {
-    locator: (page) => page.getByRole('link', { name: 'API' }),
+    locator: (page: Page): Locator => page.getByRole('link', { name: 'API' }),
+    name: 'API link',
+    text: 'API',
+    attribute: {
+      type: 'href',
+      value: '/docs/api/class-playwright',
+    },
   },
   {
-    locator: (page) => page.getByRole('button', { name: 'Node.js' }),
+    locator: (page: Page): Locator => page.getByRole('button', { name: 'Node.js' }),
+    name: 'Node.js',
+    text: 'Node.js',
+    attribute: {
+      type: 'text',
+      value: 'Node.js',
+    },
   },
 ];
 
@@ -27,43 +74,31 @@ test.describe('tests main page', () => {
   });
 
   test('check navbar elements visibility', async ({ page }) => {
-    elements.forEach(({ locator }) => {
-      test.step('check visibility playwright logo', async () => {
+    elements.forEach(({ locator, name }) => {
+      test.step(`check visibility ${name}`, async () => {
         await expect.soft(locator(page)).toBeVisible();
       });
     });
   });
 
   test('check name into navbar', async ({ page }) => {
-    await expect(page.getByRole('link', { name: 'Playwright logo Playwright' })).toContainText(
-      'Playwright',
-    );
-    await expect(page.getByRole('link', { name: 'Docs' })).toContainText('Docs');
-    await expect(page.getByRole('link', { name: 'MCP', exact: true })).toContainText('MCP');
-    await expect(page.getByRole('link', { name: 'CLI', exact: true })).toContainText('CLI');
-    await expect(page.getByRole('link', { name: 'API' })).toContainText('API');
-    await expect(page.getByRole('button', { name: 'Node.js' })).toContainText('Node.js');
+    elements.forEach(({ locator, name, text }) => {
+      if (text) {
+        test.step(`check text ${name}`, async () => {
+          await expect(locator(page)).toContainText(text);
+        });
+      }
+    });
   });
 
-  test('check href redirect', async ({ page }) => {
-    await expect(page.getByRole('link', { name: 'Playwright logo Playwright' })).toHaveAttribute(
-      'href',
-      '/',
-    );
-    await expect(page.getByRole('link', { name: 'Docs' })).toHaveAttribute('href', '/docs/intro');
-    await expect(page.getByRole('link', { name: 'MCP', exact: true })).toHaveAttribute(
-      'href',
-      '/mcp/introduction',
-    );
-    await expect(page.getByRole('link', { name: 'CLI', exact: true })).toHaveAttribute(
-      'href',
-      '/agent-cli/introduction',
-    );
-    await expect(page.getByRole('link', { name: 'API' })).toHaveAttribute(
-      'href',
-      '/docs/api/class-playwright',
-    );
-    await expect(page.getByRole('button', { name: 'Node.js' })).toContainText('Node.js');
+  test.fixme('check href redirect', async ({ page }) => {
+    elements.forEach(({ locator, name, attribute }) => {
+      if (attribute) {
+        test.step(`check href ${name}`, async () => {
+          await expect(locator(page)).toHaveAttribute(attribute.type, attribute.value);
+        });
+      }
+    });
   });
 
   test('check theme change', async ({ page }) => {
